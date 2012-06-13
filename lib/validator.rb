@@ -51,7 +51,7 @@ class Validator
 
   def camelize(term)
     string = term.to_s
-    string.sub!(/^[a-z\d]*/) { $&.capitalize }
+    string = string.sub(/^[a-z\d]*/) { $&.capitalize }
     string.gsub(/(?:_|(\/))([a-z\d]*)/i) { $2.capitalize }.gsub('/', '::')
   end
 

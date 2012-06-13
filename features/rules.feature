@@ -8,8 +8,14 @@ Feature: Rules
       | first_name |             |
       | last_name  | bar         |
 
-  Scenario: Accepts rules from the Validator::Rules namespace
+  Scenario: Passes validation when a rule passes
     When I add a "not_empty" rule for the "email" field
+    Then the validation object should be valid
+
+  Scenario: Passes validation when multiple rules pass
+    When I add the following rules:
+      | email    | not_empty |                 |
+      | password | length    | {:minimum => 3} |
     Then the validation object should be valid
 
   Scenario: Fails validation when a rule fails

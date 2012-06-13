@@ -16,11 +16,13 @@ describe Validator do
     end
 
     it 'accepts multiple rules for the same field' do
+      rule = stub
+      Validator::Rule::Length.should_receive(:new).and_return(rule)
       subject.rule(:email, [:not_empty, :length])
 
       subject.instance_variable_get(:@rules)[:email].map {|rule| rule.class }.should == [
         Validator::Rule::NotEmpty,
-        Validator::Rule::Length
+        stub.class
       ]
     end
 
@@ -80,12 +82,7 @@ end
 
 class Validator
   module Rule
-    class NotEmpty
-    end
-
     class Length
-      def initialize(*args)
-      end
     end
   end
 end
