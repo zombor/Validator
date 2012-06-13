@@ -4,6 +4,10 @@ require 'validator/rule/length'
 describe Validator::Rule::Length do
   subject { Validator::Rule::Length }
 
+  it 'has an error key' do
+    subject.new('foo').error_key.should == :length
+  end
+
   context :minimum do
     let(:rule) { subject.new(:minimum => 5) }
     it 'is valid' do

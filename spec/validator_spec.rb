@@ -56,7 +56,7 @@ describe Validator do
 
     context :false do
       before :each do
-        rule = stub('rule', :valid_value? => false)
+        rule = stub('rule', :valid_value? => false, :error_key => :not_empty)
         Validator::Rule::NotEmpty.should_receive(:new).and_return(rule)
       end
 
@@ -78,11 +78,47 @@ describe Validator do
       end
     end
   end
+
+  context :errors do
+    subject { Validator.new(OpenStruct.new(:id => 1, :email => 'foo@bar.com', :foobar => '')) }
+
+    it 'has no errors when the object is valid' do
+      rule = stub('rule', :valid_value? => true, :error_key => :not_empty)
+      Validator::Rule::NotEmpty.should_receive(:new).and_return(rule)
+
+      subject.rule(:foobar, :not_empty)
+      subject.valid?
+      subject.errors.should == {}
+    end
+
+    it 'has errors when the object is invalid' do
+      rule = stub('rule', :valid_value? => false, :error_key => :not_empty)
+      Validator::Rule::NotEmpty.should_receive(:new).and_return(rule)
+
+      subject.rule(:foobar, :not_empty)
+      subject.valid?
+      subject.errors.should == {:foobar => :not_empty}
+    end
+
+    it 'shows the first error when there are multiple errors' do
+      not_empty = stub('not_empty', :valid_value? => false, :error_key => :not_empty)
+      Validator::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
+      length = stub('length', :valid_value? => false, :error_key => :length)
+      Validator::Rule::Length.should_receive(:new).and_return(length)
+
+      subject.rule(:foobar, :not_empty)
+      subject.rule(:foobar, :length)
+      subject.valid?
+      subject.errors.should == {:foobar => :not_empty}
+    end
+  end
 end
 
 class Validator
   module Rule
     class Length
+    end
+    class NotEmpty
     end
   end
 end

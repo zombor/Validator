@@ -10,4 +10,8 @@ describe Validator::Rule::NotEmpty do
       subject.valid_value?(value).should be_false
     end
   end
+
+  it 'has an error key' do
+    subject.error_key.should == :not_empty
+  end
 end

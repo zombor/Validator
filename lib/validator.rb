@@ -2,6 +2,7 @@ class Validator
   def initialize(obj)
     @obj = obj
     @rules = {}
+    @errors = {}
   end
 
   def rule(field, rule)
@@ -40,11 +41,17 @@ class Validator
       rules.each do |r|
         if ! r.valid_value?(@obj.send(field))
           valid = false
+          @errors[field] = r.error_key
+          break
         end
       end
     end
 
-    valid
+    @valid = valid
+  end
+
+  def errors
+    @errors
   end
 
   protected

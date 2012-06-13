@@ -16,6 +16,10 @@ class Validator
 
         valid
       end
+
+      def error_key
+        :length
+      end
     end
   end
 end
