@@ -15,4 +15,4 @@ Feature: Errors
   Scenario: Errors are not empty when the validation object is invalid
     When I add a "not_empty" rule for the "first_name" field
     Then the errors should contain:
-      | first_name | not_empty |
+      | first_name | {:rule=>:not_empty, :params=>{}} |

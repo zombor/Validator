@@ -6,6 +6,6 @@ end
 Then /^the errors should contain:$/ do |table|
   @validator.valid?
   table.raw.each do |line|
-    @validator.errors[line[0].to_sym].should == line[1].to_sym
+    @validator.errors[line[0].to_sym].should == eval(line[1])
   end
 end

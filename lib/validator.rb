@@ -6,24 +6,25 @@ class Validator
   end
 
   def rule(field, rule)
-    if @rules[field.to_sym].nil?
-      @rules[field.to_sym] = []
+    field = field.to_sym
+    if @rules[field].nil?
+      @rules[field] = []
     end
 
     begin
       if rule.respond_to?(:each_pair)
         rule.each_pair do |key, value|
           r = Validator::Rule.const_get(camelize(key))
-          @rules[field.to_sym] << r.new(value)
+          @rules[field] << r.new(value)
         end
       elsif rule.respond_to?(:each)
         rule.each do |r|
           r = Validator::Rule.const_get(camelize(r))
-          @rules[field.to_sym] << r.new
+          @rules[field] << r.new
         end
       else
         rule = Validator::Rule.const_get(camelize(rule))
-        @rules[field.to_sym] << rule.new
+        @rules[field] << rule.new
       end
     rescue NameError => e
       raise InvalidRule
