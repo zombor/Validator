@@ -21,3 +21,8 @@ Feature: Rules
   Scenario: Fails validation when a rule fails
     When I add a "not_empty" rule for the "first_name" field
     Then the validation object should be invalid
+
+  Scenario: Fails validation when a rule fails and others pass
+    When I add a "not_empty" rule for the "first_name" field
+    And I add a "not_empty" rule for the "last_name" field
+    Then the validation object should be invalid
