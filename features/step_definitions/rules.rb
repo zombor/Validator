@@ -9,3 +9,7 @@ end
 When /^I add a "([^"]*)" rule for the "([^"]*)" field$/ do |rule, field|
   @validator.rule(field.to_sym, rule.to_sym)
 end
+
+Then /^the validation object should be valid$/ do
+  @validator.valid?.should be_true
+end
