@@ -13,3 +13,7 @@ end
 Then /^the validation object should be valid$/ do
   @validator.valid?.should be_true
 end
+
+Then /^the validation object should be invalid$/ do
+  @validator.valid?.should be_false
+end
