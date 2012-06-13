@@ -5,6 +5,10 @@ class Validator
         @params = params
       end
 
+      def params
+        @params
+      end
+
       def valid_value?(value)
         valid = true
 

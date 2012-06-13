@@ -14,4 +14,8 @@ describe Validator::Rule::NotEmpty do
   it 'has an error key' do
     subject.error_key.should == :not_empty
   end
+
+  it 'returns it\'s parameters' do
+    subject.params.should == {}
+  end
 end

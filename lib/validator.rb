@@ -41,7 +41,7 @@ class Validator
       rules.each do |r|
         if ! r.valid_value?(@obj.send(field))
           valid = false
-          @errors[field] = r.error_key
+          @errors[field] = {:rule => r.error_key, :params => r.params}
           break
         end
       end

@@ -1,6 +1,10 @@
 class Validator
   module Rule
     class NotEmpty
+      def params
+        {}
+      end
+
       def valid_value?(value)
         ! (value.nil? || value.empty?)
       end

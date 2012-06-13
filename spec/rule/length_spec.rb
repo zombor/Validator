@@ -8,6 +8,11 @@ describe Validator::Rule::Length do
     subject.new('foo').error_key.should == :length
   end
 
+  it 'returns it\'s parameters' do
+    rule = subject.new(:minimum => 5)
+    rule.params.should == {:minimum => 5}
+  end
+
   context :minimum do
     let(:rule) { subject.new(:minimum => 5) }
     it 'is valid' do

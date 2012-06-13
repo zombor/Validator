@@ -56,7 +56,7 @@ describe Validator do
 
     context :false do
       before :each do
-        rule = stub('rule', :valid_value? => false, :error_key => :not_empty)
+        rule = stub('rule', :valid_value? => false, :error_key => :not_empty, :params => nil)
         Validator::Rule::NotEmpty.should_receive(:new).and_return(rule)
       end
 
@@ -92,16 +92,16 @@ describe Validator do
     end
 
     it 'has errors when the object is invalid' do
-      rule = stub('rule', :valid_value? => false, :error_key => :not_empty)
+      rule = stub('rule', :valid_value? => false, :error_key => :not_empty, :params => nil)
       Validator::Rule::NotEmpty.should_receive(:new).and_return(rule)
 
       subject.rule(:foobar, :not_empty)
       subject.valid?
-      subject.errors.should == {:foobar => :not_empty}
+      subject.errors.should == {:foobar => {:rule => :not_empty, :params => nil}}
     end
 
     it 'shows the first error when there are multiple errors' do
-      not_empty = stub('not_empty', :valid_value? => false, :error_key => :not_empty)
+      not_empty = stub('not_empty', :valid_value? => false, :error_key => :not_empty, :params => nil)
       Validator::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
       length = stub('length', :valid_value? => false, :error_key => :length)
       Validator::Rule::Length.should_receive(:new).and_return(length)
@@ -109,7 +109,7 @@ describe Validator do
       subject.rule(:foobar, :not_empty)
       subject.rule(:foobar, :length)
       subject.valid?
-      subject.errors.should == {:foobar => :not_empty}
+      subject.errors.should == {:foobar => {:rule => :not_empty, :params => nil}}
     end
   end
 end
