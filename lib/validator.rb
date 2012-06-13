@@ -9,19 +9,23 @@ class Validator
       @rules[field.to_sym] = []
     end
 
-    if rule.respond_to?(:each_pair)
-      rule.each_pair do |key, value|
-        r = Validator::Rule.const_get(camelize(key))
-        @rules[field.to_sym] << r.new(value)
+    begin
+      if rule.respond_to?(:each_pair)
+        rule.each_pair do |key, value|
+          r = Validator::Rule.const_get(camelize(key))
+          @rules[field.to_sym] << r.new(value)
+        end
+      elsif rule.respond_to?(:each)
+        rule.each do |r|
+          r = Validator::Rule.const_get(camelize(r))
+          @rules[field.to_sym] << r.new
+        end
+      else
+        rule = Validator::Rule.const_get(camelize(rule))
+        @rules[field.to_sym] << rule.new
       end
-    elsif rule.respond_to?(:each)
-      rule.each do |r|
-        r = Validator::Rule.const_get(camelize(r))
-        @rules[field.to_sym] << r.new
-      end
-    else
-      rule = Validator::Rule.const_get(camelize(rule))
-      @rules[field.to_sym] << rule.new
+    rescue NameError => e
+      raise InvalidRule
     end
   end
 
@@ -52,5 +56,8 @@ class Validator
   end
 
   class InvalidKey < RuntimeError
+  end
+
+  class InvalidRule < RuntimeError
   end
 end

@@ -31,6 +31,10 @@ describe Validator do
 
       subject.instance_variable_get(:@rules)[:email].should == [rule]
     end
+
+    it 'does something with invalid rules' do
+      lambda { subject.rule(:email, :foobar) }.should raise_error(Validator::InvalidRule)
+    end
   end
 
   context :valid? do
