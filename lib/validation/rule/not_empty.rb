@@ -1,4 +1,4 @@
-class Validator
+module Validation
   module Rule
     class NotEmpty
       def params

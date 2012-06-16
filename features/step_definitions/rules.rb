@@ -3,7 +3,7 @@ Given /^I have a validation object with the following data:$/ do |table|
   table.raw.each do |key, value|
     data[key] = value
   end
-  @validator = Validator.new(OpenStruct.new(data))
+  @validator = Validation::Validator.new(OpenStruct.new(data))
 end
 
 When /^I add a "([^"]*)" rule for the "([^"]*)" field$/ do |rule, field|

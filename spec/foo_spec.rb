@@ -1,9 +1,9 @@
 require 'spec_helper'
-require 'validator'
-require 'validator/rule/not_empty'
+require 'validation/validator'
+require 'validation/rule/not_empty'
 require 'ostruct'
 
-class Foo < Validator
+class Foo < Validation::Validator
   def initialize(thing)
     super(thing)
     rule :email, :not_empty

@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'validator/rule/numeric'
+require 'validation/rule/numeric'
 
-describe Validator::Rule::Numeric do
+describe Validation::Rule::Numeric do
   it 'passes when a value is numeric' do
     subject.valid_value?(10).should be_true
   end
