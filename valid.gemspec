@@ -3,11 +3,11 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name = 'valid'
-  s.version = '0.1.1'
+  s.version = '0.1.2'
   s.authors = ['Jeremy Bush']
   s.email = ['contractfrombelow@gmail.com']
   s.summary = 'A standalone, generic object validator for ruby'
-  s.homepage = %q{https://github.com/zombor/validation}
+  s.homepage = %q{https://github.com/zombor/Validator}
 
   s.files = Dir['lib/**/*.rb']
   s.require_path = 'lib'
