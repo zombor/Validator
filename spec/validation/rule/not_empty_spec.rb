@@ -1,6 +1,6 @@
-require 'validator/rule/not_empty'
+require 'validation/rule/not_empty'
 
-describe Validator::Rule::NotEmpty do
+describe Validation::Rule::NotEmpty do
   it 'passes when a value exists' do
     subject.valid_value?('foo').should be_true
   end

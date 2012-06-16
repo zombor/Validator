@@ -1,5 +1,5 @@
 $LOAD_PATH << './lib'
 
-require 'validator'
-require 'validator/rule/not_empty'
-require 'validator/rule/length'
+require 'validation'
+require 'validation/rule/not_empty'
+require 'validation/rule/length'

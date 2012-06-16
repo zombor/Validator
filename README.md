@@ -10,7 +10,7 @@ Validator is useful for validating the state of any existing ruby object.
 
 ```ruby
   object = OpenStruct.new(:email => 'foo@bar.com', :password => 'foobar')
-  validator = Validator.new(object)
+  validator = Validation::Validator.new(object)
   validator.rule(:email, [:email, :not_empty]) # multiple rules in one line
   validator.rule(:password, :not_empty) # a single rule on a line
   validator.rule(:password, :length => {:minimum => 3}) # a rule that takes parameters
@@ -29,7 +29,7 @@ The first paramater can be any message that the object responds to.
 If you have a custom rule you need to write, just put it inside the `Validation::Rule` namespace:
 
 ```ruby
-  class Validator
+  module Validation
     module Rule
       class MyCustomRule
         def error_key
@@ -53,6 +53,28 @@ A rule class should have the following methods on it:
   - `error_key` a symbol to represent the error. This shows up in the errors hash
   - `valid_values?(value)` the beef of the rule. This is where you determine if the value is valid or not
   - `params` the params hash that was passed into the constructor
+
+### Writing self-contained validators
+
+You can also create self-contained validation classes if you don't like the dynamic creation approach:
+
+```ruby
+  require 'validation'
+  require 'validation/rule/not_empty'
+
+  class MyFormValidator < Validation::Validator
+    include Validation
+
+    rule :email, :not_empty
+  end
+```
+
+Now you can use this anywhere in your code:
+
+```ruby
+  form_validator = MyFormValidator.new(OpenStruct.new(params))
+  form_validator.valid?
+```
 
 # Todo
 

@@ -1,8 +1,8 @@
 require 'spec_helper'
-require 'validator/rule/length'
+require 'validation/rule/length'
 
-describe Validator::Rule::Length do
-  subject { Validator::Rule::Length }
+describe Validation::Rule::Length do
+  subject { Validation::Rule::Length }
 
   it 'has an error key' do
     subject.new('foo').error_key.should == :length

@@ -1,7 +1,7 @@
 require 'spec_helper'
-require 'validator/rule/email'
+require 'validation/rule/email'
 
-describe Validator::Rule::Email do
+describe Validation::Rule::Email do
   it 'passes with a valid email' do
     subject.valid_value?('foo@bar.com').should be_true
   end
