@@ -11,6 +11,6 @@ Gem::Specification.new do |s|
   s.summary = 'A standalone, generic object validator for ruby'
   s.homepage = %q{https://github.com/zombor/Validator}
 
-  s.files = Dir['lib/**/*.rb']
+  s.files = Dir.glob("lib/**/*") + ["README.md"]
   s.require_path = 'lib'
 end
