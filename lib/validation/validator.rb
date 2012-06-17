@@ -16,18 +16,21 @@ module Validation
 
       begin
         if rule.respond_to?(:each_pair)
-          rule.each_pair do |key, value|
-            r = Validation::Rule.const_get(camelize(key))
-            rules[field] << r.new(value)
-          end
+          add_parameterized_rule(field, rule)
         elsif rule.respond_to?(:each)
           rule.each do |r|
-            r = Validation::Rule.const_get(camelize(r))
-            rules[field] << r.new
+            if r.respond_to?(:each_pair)
+              add_parameterized_rule(field, r)
+            else
+              r = Validation::Rule.const_get(camelize(r)).new
+              add_object_to_rule(r)
+              rules[field] << r
+            end
           end
         else
-          rule = Validation::Rule.const_get(camelize(rule))
-          rules[field] << rule.new
+          rule = Validation::Rule.const_get(camelize(rule)).new
+          add_object_to_rule(rule)
+          rules[field] << rule
         end
       rescue NameError => e
         raise InvalidRule
@@ -55,6 +58,20 @@ module Validation
     end
 
     protected
+
+    def add_parameterized_rule(field, rule)
+      rule.each_pair do |key, value|
+        r = Validation::Rule.const_get(camelize(key)).new(value)
+        add_object_to_rule(r)
+        rules[field] << r
+      end
+    end
+
+    def add_object_to_rule(rule)
+      if rule.respond_to?(:obj=)
+        rule.obj = @obj
+      end
+    end
 
     def camelize(term)
       string = term.to_s

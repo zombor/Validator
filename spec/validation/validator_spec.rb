@@ -8,7 +8,9 @@ describe Validation::Validator do
   end
 
   context :rules do
-    subject { Validation::Validator.new(OpenStruct.new(:id => 1, :email => 'foo@bar.com')) }
+    let(:data_object) { OpenStruct.new(:id => 1, :email => 'foo@bar.com') }
+    subject { Validation::Validator.new(data_object) }
+
     it 'accepts a rule' do
       subject.rule(:email, :not_empty)
 
@@ -38,6 +40,27 @@ describe Validation::Validator do
 
     it 'does something with invalid rules' do
       lambda { subject.rule(:email, :foobar) }.should raise_error(Validation::InvalidRule)
+    end
+
+    context 'sends the data object to the rule' do
+      before :each do
+        length = stub
+        Validation::Rule::Length.should_receive(:new).with({:maximum => 5, :minimum => 3}).and_return(length)
+
+        not_empty = stub
+        not_empty.should_receive(:obj=).with(data_object)
+        Validation::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
+      end
+
+      it :single_rule do
+        subject.rule(:email, :not_empty)
+        subject.rule(:email, :length => {:minimum => 3, :maximum => 5})
+      end
+
+      it :multiple_rules do
+        subject.rule(:email, [:not_empty, :length => {:minimum => 3, :maximum => 5}])
+      end
+
     end
   end
 
