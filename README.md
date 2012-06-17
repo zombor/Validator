@@ -76,6 +76,13 @@ Now you can use this anywhere in your code:
   form_validator.valid?
 ```
 
-# Todo
+# Contributing
 
-It works as is right now, but I need to add capability for rules to look at other parts of the source object. This will let you do complicated rule logic.
+Have an improvement? Have an awesome rule you want included? Simple!
+
+ 1. Fork the repository
+ 2. Write specs for the change
+ 3. Add your change
+ 4. Submit a pull request
+
+Don't change any version files or gemspec files in your change.
