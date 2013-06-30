@@ -53,8 +53,19 @@ module Validation
     # one error per field
     def valid?
       valid = true
+      all_rules = {}
 
-      rules.each_pair do |field, rules|
+      if self.instance_of?(Validation::Validator)
+        # use the normal instance variable
+        all_rules = self.rules
+
+      elsif self.is_a?(Validation::Validator) # inherited "stand-alone" validator
+        # in this case the rules have been defined in the class instance
+        # variable '@rules' since they were defined during the class definition
+        all_rules = self.class.rules
+      end
+
+      all_rules.each_pair do |field, rules|
         if ! @obj.respond_to?(field)
           raise InvalidKey
         end
