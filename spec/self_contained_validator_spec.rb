@@ -36,4 +36,19 @@ describe SelfContainedValidator do
     foo.errors.should include(:test_mail, :test_string)
   end
 
+  context 'when adding new rules' do
+    let(:data) { OpenStruct.new(:test_mail => 'test@email.com', :test_string => '') }
+    subject { SelfContainedValidator.new(data) }
+    before { subject.rule(:test_mail, :length => { :maximum => 3}) }
+
+    it 'keeps the old rules' do
+      subject.should_not be_valid
+      subject.errors.should include(:test_string)
+    end
+
+    it 'validates both old and new rules' do
+      subject.should_not be_valid
+      subject.errors.should include(:test_mail)
+    end
+  end
 end
