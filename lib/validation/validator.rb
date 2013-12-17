@@ -44,7 +44,7 @@ module Validation
           rules[field] << rule
         end
       rescue NameError => e
-        raise InvalidRule
+        raise InvalidRule.new(e)
       end
     end
 
