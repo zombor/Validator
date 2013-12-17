@@ -102,6 +102,22 @@ describe Validation::Validator do
         lambda { subject.valid? }.should raise_error(Validation::InvalidKey)
       end
     end
+
+    context 'invalid rule' do
+      before :each do
+        rule = stub('rule', :valid_value? => false)
+      end
+
+      it 'raises a descriptive error if an invalid rule is attempted' do
+        actual_message = ""
+        begin
+          subject.rule(:foobar, :invalid_rule)
+        rescue Validation::InvalidRule => e
+          actual_message = e.message
+        end
+        actual_message.should == "uninitialized constant Validation::Rule::InvalidRule"
+      end
+    end
   end
 
   context :errors do
