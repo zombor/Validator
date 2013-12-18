@@ -10,6 +10,11 @@ module Validation
       @errors ||= {}
     end
 
+    # A string representation of the errors for this object
+    def errors_described
+      return Rules.describe_errors(@errors)
+    end
+
     # Define a rule for this object
     #
     # The rule parameter can be one of the following:
@@ -83,6 +88,19 @@ module Validation
     end
 
     protected
+
+    def self.describe_errors(errors)
+      messages = []
+      errors.each do |field, violation|
+        params = violation[:params]
+        rule_description = violation[:rule].to_s
+        if !params.nil? && params.length > 0
+          rule_description << " #{params.inspect}"
+        end
+        messages << "The value of '#{field}' failed the validation rule '#{rule_description}'."
+      end
+      return messages.join("\n")
+    end
 
     # Adds a parameterized rule to this object
     def add_parameterized_rule(field, rule)
