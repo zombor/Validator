@@ -52,8 +52,8 @@ If you have a custom rule you need to write, just put it inside the `Validation:
 
 A rule class should have the following methods on it:
 
-  - `error_key` a symbol to represent the error. This shows up in the errors hash
-  - `valid_values?(value)` the beef of the rule. This is where you determine if the value is valid or not
+  - `error_key` a symbol to represent the error. This shows up in the errors hash.  Must be an underscored_version of the class name
+  - `valid_value?(value)` the beef of the rule. This is where you determine if the value is valid or not
   - `params` the params hash that was passed into the constructor
 
 ### Writing self-contained validators
@@ -83,8 +83,9 @@ Now you can use this anywhere in your code:
 Have an improvement? Have an awesome rule you want included? Simple!
 
  1. Fork the repository
- 2. Write specs for the change
- 3. Add your change
- 4. Submit a pull request
+ 2. Create a branch off of the `develop` branch
+ 3. Write specs for the change
+ 4. Add your change
+ 5. Submit a pull request to merge against the `develop` branch
 
 Don't change any version files or gemspec files in your change.
