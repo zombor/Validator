@@ -52,7 +52,7 @@ If you have a custom rule you need to write, just put it inside the `Validation:
 
 A rule class should have the following methods on it:
 
-  - `error_key` a symbol to represent the error. This shows up in the errors hash
+  - `error_key` a symbol to represent the error. This shows up in the errors hash.  Must be an underscored_version of the class name
   - `valid_value?(value)` the beef of the rule. This is where you determine if the value is valid or not
   - `params` the params hash that was passed into the constructor
 
