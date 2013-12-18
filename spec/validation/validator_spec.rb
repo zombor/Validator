@@ -113,7 +113,7 @@ describe Validation::Validator do
         begin
           subject.rule(:foobar, :invalid_rule)
         rescue Validation::InvalidRule => e
-          actual_message = e.message
+          actual_message = e.message.to_s
         end
         actual_message.should == "uninitialized constant Validation::Rule::InvalidRule"
       end
