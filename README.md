@@ -83,8 +83,9 @@ Now you can use this anywhere in your code:
 Have an improvement? Have an awesome rule you want included? Simple!
 
  1. Fork the repository
- 2. Write specs for the change
- 3. Add your change
- 4. Submit a pull request
+ 2. Create a branch off of the `develop` branch
+ 3. Write specs for the change
+ 4. Add your change
+ 5. Submit a pull request to merge against the `develop` branch
 
 Don't change any version files or gemspec files in your change.
