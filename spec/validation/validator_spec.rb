@@ -138,6 +138,24 @@ describe Validation::Validator do
     end
   end
 
+  context :errors_described do
+    subject { Validation::Validator.new(OpenStruct.new(:id => 1, :email => '', :foobar => '')) }
+
+    it "describes errors in English" do
+      not_empty = stub('not_empty', :valid_value? => false, :error_key => :not_empty, :params => nil)
+      Validation::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
+      length = stub('length', :valid_value? => false, :error_key => :length, :params => nil)
+      Validation::Rule::Length.should_receive(:new).and_return(length)
+
+      subject.rule(:email, :not_empty)
+      subject.rule(:foobar, :length)
+      subject.valid?
+      subject.errors_described.should == 
+            "The value of 'email' failed the validation rule 'not_empty'.\n" +
+            "The value of 'foobar' failed the validation rule 'length'."
+    end
+  end
+
   context :describe_errors do
     
     it "can describe a validation error" do
