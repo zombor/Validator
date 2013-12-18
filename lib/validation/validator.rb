@@ -84,6 +84,19 @@ module Validation
 
     protected
 
+    def self.describe_errors(errors)
+      messages = []
+      errors.each do |field, violation|
+        params = violation[:params]
+        rule_description = violation[:rule].to_s
+        if params.length > 0
+          rule_description << " #{params.inspect}"
+        end
+        messages << "The value of '#{field}' failed the validation rule '#{rule_description}'."
+      end
+      return messages.join("\n")
+    end
+
     # Adds a parameterized rule to this object
     def add_parameterized_rule(field, rule)
       rule.each_pair do |key, value|
