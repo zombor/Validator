@@ -55,12 +55,16 @@ module Validation
       valid = true
 
       rules.each_pair do |field, rules|
-        if ! @obj.respond_to?(field)
-          raise InvalidKey
+        value = case @obj
+        when Hash
+          @obj[field]
+        else
+          raise InvalidKey unless @obj.respond_to?(field)
+          @obj.send(field)
         end
 
         rules.each do |r|
-          if ! r.valid_value?(@obj.send(field))
+          if ! r.valid_value?(value)
             valid = false
             errors[field] = {:rule => r.error_key, :params => r.params}
             break
