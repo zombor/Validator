@@ -98,6 +98,12 @@ describe Validation::Validator do
         validator.rule(:email,:not_empty)
         validator.valid?.should be_true
       end
+
+      it 'can invalidate a hash' do
+        validator = Validation::Validator.new({:id => 1})
+        validator.rule(:email,:not_empty)
+        validator.valid?.should be_false
+      end
     end
 
     context 'invalid rule key' do
