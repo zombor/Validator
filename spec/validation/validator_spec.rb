@@ -65,6 +65,7 @@ describe Validation::Validator do
   end
 
   context :valid? do
+
     subject { Validation::Validator.new(OpenStruct.new(:id => 1, :email => 'foo@bar.com')) }
 
     context :true do
@@ -88,6 +89,14 @@ describe Validation::Validator do
       it 'returns false when the object is not valid' do
         subject.rule(:email, :not_empty)
         subject.valid?.should be_false
+      end
+    end
+
+    context :with_hash do
+      it 'can validate a hash' do
+        validator = Validation::Validator.new({:id => 1, :email => 'foo@bar.com'})
+        validator.rule(:email,:not_empty)
+        validator.valid?.should be_true
       end
     end
 
