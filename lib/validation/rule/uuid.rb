@@ -1,7 +1,7 @@
 module Validation
   # UUID rule
   module Rule
-    class UUID
+    class Uuid
       class UnknownVersion < StandardError; end
       # params can be any of the folowing:
       #
