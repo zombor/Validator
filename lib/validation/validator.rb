@@ -46,6 +46,7 @@ module Validation
       rescue NameError => e
         raise InvalidRule.new(e)
       end
+      self
     end
 
     # Determines if this object is valid. When a rule fails for a field,
