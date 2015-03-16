@@ -1,7 +1,7 @@
 require 'ostruct'
 require 'validation/rule/uuid'
 
-describe Validation::Rule::UUID do
+describe Validation::Rule::Uuid do
   params = { :version => 'v4' }
   subject { described_class.new(params) }
 
