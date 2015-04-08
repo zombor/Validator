@@ -1,5 +1,7 @@
 # Validator
 
+test
+
 [![Build Status](https://secure.travis-ci.org/zombor/Validator.png)](http://travis-ci.org/zombor/Validator)
 
 Validator is a simple ruby validation class. You don't use it directly inside your classes like just about every other ruby validation class out there. I chose to implement it in this way so I didn't automatically pollute the namespace of the objects I wanted to validate.
