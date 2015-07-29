@@ -1,2 +1,8 @@
 *.swp
 *.gem
+
+# IDE files
+.idea
+
+# documentation
+doc
