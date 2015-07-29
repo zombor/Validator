@@ -14,17 +14,17 @@ module Validation
       end
 
       def valid_value?(uri_string)
-        begin
-          uri = URI(uri_string)
-          @required_parts.each do |part|
-            if uri.send(part).nil? || uri.send(part).empty?
-              return false
-            end
+        return true if uri_string.nil?
+
+        uri = URI(uri_string)
+        @required_parts.each do |part|
+          if uri.send(part).nil? || uri.send(part).empty?
+            return false
           end
-          true
-        rescue ::URI::InvalidURIError => e
-          return false
         end
+        true
+      rescue ::URI::InvalidURIError
+        return false
       end
     end
   end

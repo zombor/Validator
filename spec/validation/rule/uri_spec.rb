@@ -16,6 +16,10 @@ describe Validation::Rule::URI do
     subject.params.should == {:required_elements => [:host]}
   end
 
+  it 'passes with nil' do
+    subject.valid_value?(nil).should be_true
+  end
+
   it 'fails when given an invalid uri' do
     subject.valid_value?('foo:/%urim').should be_false
   end
