@@ -15,6 +15,11 @@ describe Validation::Rule::Length do
 
   context :minimum do
     let(:rule) { subject.new(:minimum => 5) }
+
+    it 'does not allow nil' do
+      rule.valid_value?(nil).should be_false
+    end
+
     it 'is valid' do
       rule.valid_value?('foobarbar').should be_true
     end
@@ -26,6 +31,11 @@ describe Validation::Rule::Length do
 
   context :maximum do
     let(:rule) { subject.new(:maximum => 5) }
+
+    it 'allows nil' do
+      rule.valid_value?(nil).should be_true
+    end
+
     it 'is valid' do
       rule.valid_value?('foo').should be_true
     end
@@ -37,6 +47,10 @@ describe Validation::Rule::Length do
 
   context :exact do
     let(:rule) { subject.new(:exact => 5) }
+
+    it 'does not allow nil' do
+      rule.valid_value?(nil).should be_false
+    end
 
     it 'is valid' do
       rule.valid_value?('fooba').should be_true
