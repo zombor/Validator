@@ -23,15 +23,13 @@ module Validation
 
       # determines if value is valid according to the constructor params
       def valid_value?(value)
-        valid = true
-
         @params.each_pair do |key, param|
-          valid = false if key == :minimum && value.length < param
-          valid = false if key == :maximum && value.length > param
-          valid = false if key == :exact && value.length != param
+          return false if key == :minimum && (value.nil? || value.length < param)
+          return false if key == :maximum && !value.nil? && value.length > param
+          return false if key == :exact && (value.nil? || value.length != param)
         end
 
-        valid
+        true
       end
 
       def error_key
