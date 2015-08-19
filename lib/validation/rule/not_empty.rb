@@ -9,12 +9,26 @@ module Validation
 
       # Determines if value is empty or not. In this rule, nil is empty
       def valid_value?(value)
-        ! (value.nil? || value.empty?)
+        ! (check_nil(value) || check_empty(value))
       end
 
       # The error key for this field
       def error_key
         :not_empty
+      end
+
+      private
+
+      def check_nil(value)
+        if value.respond_to?(:nil?)
+          value.nil?
+        end
+      end
+
+      def check_empty(value)
+        if value.respond_to?(:empty?)
+          value.empty?
+        end
       end
     end
   end
