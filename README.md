@@ -78,14 +78,18 @@ Now you can use this anywhere in your code:
   form_validator.valid?
 ```
 
+# Semantic Versioning
+
+This project conforms to [semver](http://semver.org/).
+
 # Contributing
 
 Have an improvement? Have an awesome rule you want included? Simple!
 
  1. Fork the repository
- 2. Create a branch off of the `develop` branch
+ 2. Create a branch off of the `master` branch
  3. Write specs for the change
  4. Add your change
- 5. Submit a pull request to merge against the `develop` branch
+ 5. Submit a pull request to merge against the `master` branch
 
 Don't change any version files or gemspec files in your change.
