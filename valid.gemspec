@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.email = ['contractfrombelow@gmail.com']
   s.summary = 'A standalone, generic object validator for ruby'
   s.homepage = %q{https://github.com/zombor/Validator}
+  s.license = 'ISC'
 
   s.files = Dir.glob("lib/**/*") + ["README.md"]
   s.require_path = 'lib'
