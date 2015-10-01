@@ -5,7 +5,9 @@ module Validation
       class UnknownVersion < StandardError; end
       # params can be any of the folowing:
       #
-      # - :version - v4 (only supports v4 at this time)
+      # - :version - v4
+      #              v5
+      #              uuid (Any valid uuid)
       #
       # Example:
       #
@@ -30,17 +32,16 @@ module Validation
 
       private
 
+      VERSION_REGEX = {
+        'uuid' => /^[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        'v4'   => /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        'v5'   => /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+      }
+
       def uuid_regex
-        if params[:version] == 'v4'
-          uuid_v4_regex
-        else
-          raise UnknownVersion
-        end
+        VERSION_REGEX.fetch(params[:version]) { raise UnknownVersion }
       end
 
-      def uuid_v4_regex
-        /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
-      end
     end
   end
 end
