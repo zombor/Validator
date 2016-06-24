@@ -39,10 +39,19 @@ describe Validation::Validator do
       ).to eq([not_empty_class, length_class])
     end
 
-    it 'accepts rules with parameters' do
+    it 'accepts rules with name + parameters' do
       rule = double
       expect(Validation::Rule::Length).to receive(:new).with({:maximum => 5, :minimum => 3}).and_return(rule)
       subject.rule(:email, :length => {:maximum => 5, :minimum => 3})
+
+      expect(subject.instance_variable_get(:@rules)[:email]).to eq([rule])
+    end
+
+    it 'accepts rules with class + parameters' do
+      rule_class = Class.new
+      rule = double
+      expect(rule_class).to receive(:new).with({:maximum => 5, :minimum => 3}).and_return(rule)
+      subject.rule(:email, rule_class => {:maximum => 5, :minimum => 3})
 
       expect(subject.instance_variable_get(:@rules)[:email]).to eq([rule])
     end
