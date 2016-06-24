@@ -9,47 +9,56 @@ describe Validation::Validator do
 
   context :rules do
     let(:data_object) { OpenStruct.new(:id => 1, :email => 'foo@bar.com') }
+    let(:rule_klass) { Validation::Rule::NotEmpty }
+
     subject { Validation::Validator.new(data_object) }
 
-    it 'accepts a rule' do
+    it 'accepts a rule name' do
       subject.rule(:email, :not_empty)
 
-      subject.instance_variable_get(:@rules)[:email].map {|rule| rule.class }.should  == [Validation::Rule::NotEmpty]
+      expect(
+        subject.instance_variable_get(:@rules)[:email].map(&:class)
+      ).to eq([Validation::Rule::NotEmpty])
+    end
+
+    it 'accepts a rule class' do
+      subject.rule(:email, rule_klass)
+
+      expect(
+        subject.instance_variable_get(:@rules)[:email].map(&:class)
+      ).to eq([rule_klass])
     end
 
     it 'accepts multiple rules for the same field' do
-      not_empty = stub
-      Validation::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
-      length = stub
-      Validation::Rule::Length.should_receive(:new).and_return(length)
+      stub_const("Validation::Rule::NotEmpty", not_empty_class = Class.new)
+      stub_const("Validation::Rule::Length", length_class = Class.new)
       subject.rule(:email, [:not_empty, :length])
 
-      subject.instance_variable_get(:@rules)[:email].map {|rule| rule.class }.should == [
-        not_empty.class,
-        length.class
-      ]
+      expect(
+        subject.instance_variable_get(:@rules)[:email].map(&:class)
+      ).to eq([not_empty_class, length_class])
     end
 
     it 'accepts rules with parameters' do
-      rule = stub
-      Validation::Rule::Length.should_receive(:new).with({:maximum => 5, :minimum => 3}).and_return(rule)
+      rule = double
+      expect(Validation::Rule::Length).to receive(:new).with({:maximum => 5, :minimum => 3}).and_return(rule)
       subject.rule(:email, :length => {:maximum => 5, :minimum => 3})
 
-      subject.instance_variable_get(:@rules)[:email].should == [rule]
+      expect(subject.instance_variable_get(:@rules)[:email]).to eq([rule])
     end
 
     it 'does something with invalid rules' do
-      lambda { subject.rule(:email, :foobar) }.should raise_error(Validation::InvalidRule)
+      expect { subject.rule(:email, :foobar) }.to raise_error(Validation::InvalidRule)
     end
 
     context 'sends the data object to the rule' do
       before :each do
-        length = stub
-        Validation::Rule::Length.should_receive(:new).with({:maximum => 5, :minimum => 3}).and_return(length)
+        length = double
+        expect(Validation::Rule::Length).to receive(:new).with({:maximum => 5, :minimum => 3}).and_return(length)
 
-        not_empty = stub
-        not_empty.should_receive(:obj=).with(data_object)
-        Validation::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
+        not_empty = double
+        expect(not_empty).to receive(:obj=).with(data_object)
+        expect(Validation::Rule::NotEmpty).to receive(:new).and_return(not_empty)
       end
 
       it :single_rule do
@@ -67,7 +76,7 @@ describe Validation::Validator do
         subject
           .rule(:email, :not_empty)
           .rule(:email, :length => {:minimum => 3, :maximum => 5})
-      end.to_not raise_error
+      end.not_to raise_error
     end
   end
 
@@ -76,53 +85,55 @@ describe Validation::Validator do
 
     context :true do
       before :each do
-        rule = stub('rule', :valid_value? => true)
-        Validation::Rule::NotEmpty.should_receive(:new).and_return(rule)
+        rule = double(:rule, :valid_value? => true)
+        expect(Validation::Rule::NotEmpty).to receive(:new).and_return(rule)
       end
 
       it 'returns true when the object is valid' do
         subject.rule(:email, :not_empty)
-        subject.valid?.should be_true
+        expect(subject.valid?).to eq(true)
       end
     end
 
     context :false do
       before :each do
-        rule = stub('rule', :valid_value? => false, :error_key => :not_empty, :params => nil)
-        Validation::Rule::NotEmpty.should_receive(:new).and_return(rule)
+        rule = double(:rule, :valid_value? => false, :error_key => :not_empty, :params => nil)
+        expect(Validation::Rule::NotEmpty).to receive(:new).and_return(rule)
       end
 
       it 'returns false when the object is not valid' do
         subject.rule(:email, :not_empty)
-        subject.valid?.should be_false
+        expect(subject.valid?).to eq(false)
       end
     end
 
     context 'invalid rule key' do
       before :each do
-        rule = stub('rule', :valid_value? => false)
-        Validation::Rule::NotEmpty.should_receive(:new).and_return(rule)
+        rule = double(:rule, :valid_value? => false)
+        expect(Validation::Rule::NotEmpty).to receive(:new).and_return(rule)
       end
 
-      it 'raises an error if a rule exists for an invalid object key' do
+      it 'raises a descriptive error if a rule exists for an invalid object key' do
         subject.rule(:foobar, :not_empty)
-        lambda { subject.valid? }.should raise_error(Validation::InvalidKey)
+        expect { subject.valid? }.to raise_error(
+          Validation::InvalidKey,
+          "cannot validate non-existent field 'foobar'"
+        )
       end
     end
 
     context 'invalid rule' do
       before :each do
-        rule = stub('rule', :valid_value? => false)
+        rule = double(:rule, :valid_value? => false)
       end
 
       it 'raises a descriptive error if an invalid rule is attempted' do
-        actual_message = ""
-        begin
+        expect {
           subject.rule(:foobar, :invalid_rule)
-        rescue Validation::InvalidRule => e
-          actual_message = e.message.to_s
-        end
-        actual_message.should == "uninitialized constant Validation::Rule::InvalidRule"
+        }.to raise_error(
+          Validation::InvalidRule,
+          "uninitialized constant Validation::Rule::InvalidRule"
+        )
       end
     end
   end
@@ -131,33 +142,33 @@ describe Validation::Validator do
     subject { Validation::Validator.new(OpenStruct.new(:id => 1, :email => 'foo@bar.com', :foobar => '')) }
 
     it 'has no errors when the object is valid' do
-      rule = stub('rule', :valid_value? => true, :error_key => :not_empty)
-      Validation::Rule::NotEmpty.should_receive(:new).and_return(rule)
+      rule = double(:rule, :valid_value? => true, :error_key => :not_empty)
+      expect(Validation::Rule::NotEmpty).to receive(:new).and_return(rule)
 
       subject.rule(:foobar, :not_empty)
       subject.valid?
-      subject.errors.should == {}
+      expect(subject.errors).to be_empty
     end
 
     it 'has errors when the object is invalid' do
-      rule = stub('rule', :valid_value? => false, :error_key => :not_empty, :params => nil)
-      Validation::Rule::NotEmpty.should_receive(:new).and_return(rule)
+      rule = double(:rule, :valid_value? => false, :error_key => :not_empty, :params => nil)
+      expect(Validation::Rule::NotEmpty).to receive(:new).and_return(rule)
 
       subject.rule(:foobar, :not_empty)
       subject.valid?
-      subject.errors.should == {:foobar => {:rule => :not_empty, :params => nil}}
+      expect(subject.errors).to eq(:foobar => { :rule => :not_empty, :params => nil })
     end
 
     it 'shows the first error when there are multiple errors' do
-      not_empty = stub('not_empty', :valid_value? => false, :error_key => :not_empty, :params => nil)
-      Validation::Rule::NotEmpty.should_receive(:new).and_return(not_empty)
-      length = stub('length', :valid_value? => false, :error_key => :length)
-      Validation::Rule::Length.should_receive(:new).and_return(length)
+      not_empty = double(:not_empty, :valid_value? => false, :error_key => :not_empty, :params => nil)
+      expect(Validation::Rule::NotEmpty).to receive(:new).and_return(not_empty)
+      length = double(:length, :valid_value? => false, :error_key => :length)
+      expect(Validation::Rule::Length).to receive(:new).and_return(length)
 
       subject.rule(:foobar, :not_empty)
       subject.rule(:foobar, :length)
       subject.valid?
-      subject.errors.should == {:foobar => {:rule => :not_empty, :params => nil}}
+      expect(subject.errors).to eq(:foobar => { :rule => :not_empty, :params => nil })
     end
   end
 end

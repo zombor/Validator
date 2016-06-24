@@ -3,20 +3,20 @@ require 'validation/rule/email'
 
 describe Validation::Rule::Email do
   it 'passes with a valid email' do
-    subject.valid_value?('foo@bar.com').should be_true
+    expect(subject.valid_value?('foo@bar.com')).to eq(true)
   end
 
   it 'fails with an invalid email' do
-    ['', nil].each do |value|
-      subject.valid_value?(value).should be_false
+    ['bad-email', '', nil].each do |value|
+      expect(subject.valid_value?(value)).to eq(false)
     end
   end
 
   it 'has an error key' do
-    subject.error_key.should == :email
+    expect(subject.error_key).to eq(:email)
   end
 
-  it 'returns it\'s parameters' do
-    subject.params.should == {}
+  it 'returns its parameters' do
+    expect(subject.params).to eq({})
   end
 end

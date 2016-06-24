@@ -8,25 +8,25 @@ describe Validation::Rule::Matches do
   subject { Validation::Rule::Matches.new(field) }
 
   it 'has an error key' do
-    subject.error_key.should == :matches
+    expect(subject.error_key).to eq(:matches)
   end
 
-  it 'returns it\'s parameters' do
-    subject.params.should == field
+  it 'returns its parameters' do
+    expect(subject.params).to eq(field)
   end
 
   it 'accepts a data object' do
-    subject.obj = obj
+    expect { subject.obj = obj }.not_to raise_error
   end
 
   it 'passes on valid data' do
     subject.obj = obj
-    subject.valid_value?('bar').should be_true
+    expect(subject.valid_value?('bar')).to eq(true)
   end
 
   it 'fails on invalid data' do
     subject.obj = obj
-    subject.valid_value?('foo').should be_false
+    expect(subject.valid_value?('foo')).to eq(false)
   end
 
 end

@@ -3,20 +3,20 @@ require 'validation/rule/numeric'
 
 describe Validation::Rule::Numeric do
   it 'passes when a value is numeric' do
-    subject.valid_value?(10).should be_true
+    expect(subject.valid_value?(10)).to eq(true)
   end
 
   it 'fails when a value is not numeric' do
     ['', nil, 'foo', 10.5].each do |value|
-      subject.valid_value?(value).should be_false
+      expect(subject.valid_value?(value)).to eq(false)
     end
   end
 
   it 'has an error key' do
-    subject.error_key.should == :numeric
+    expect(subject.error_key).to eq(:numeric)
   end
 
-  it 'returns it\'s parameters' do
-    subject.params.should == {}
+  it 'returns its parameters' do
+    expect(subject.params).to eq({})
   end
 end
