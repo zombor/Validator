@@ -17,31 +17,25 @@ module Validation
     # * a symbol that matches to a class in the Validation::Rule namespace
     #  * e.g. rule(:field, :not_empty)
     # * a hash containing the rule as the key and it's parameters as the values
-    #  * e.g. rule(:field, :length => {:minimum => 3, :maximum => 5})
+    #  * e.g. rule(:field, :length => { :minimum => 3, :maximum => 5 })
     # * an array combining the two previous types
-    def rule(field, rule)
+    def rule(field, definition)
       field = field.to_sym
-      if rules[field].nil?
-        rules[field] = []
-      end
+      rules[field] = [] if rules[field].nil?
 
       begin
-        if rule.respond_to?(:each_pair)
-          add_parameterized_rule(field, rule)
-        elsif rule.respond_to?(:each)
-          rule.each do |r|
-            if r.respond_to?(:each_pair)
-              add_parameterized_rule(field, r)
+        if definition.respond_to?(:each_pair)
+          add_parameterized_rules(field, definition)
+        elsif definition.respond_to?(:each)
+          definition.each do |item|
+            if item.respond_to?(:each_pair)
+              add_parameterized_rules(field, item)
             else
-              r = Validation::Rule.const_get(camelize(r)).new
-              add_object_to_rule(r)
-              rules[field] << r
+              add_single_rule(field, item)
             end
           end
         else
-          rule = Validation::Rule.const_get(camelize(rule)).new
-          add_object_to_rule(rule)
-          rules[field] << rule
+          add_single_rule(field, definition)
         end
       rescue NameError => e
         raise InvalidRule.new(e)
@@ -57,7 +51,7 @@ module Validation
 
       rules.each_pair do |field, rules|
         if ! @obj.respond_to?(field)
-          raise InvalidKey
+          raise InvalidKey, "cannot validate non-existent field '#{field}'"
         end
 
         rules.each do |r|
@@ -74,20 +68,33 @@ module Validation
 
     protected
 
-    # Adds a parameterized rule to this object
-    def add_parameterized_rule(field, rule)
-      rule.each_pair do |key, value|
-        r = Validation::Rule.const_get(camelize(key)).new(value)
-        add_object_to_rule(r)
-        rules[field] << r
+    # Adds a single rule to this object
+    def add_single_rule(field, key_or_klass, params = nil)
+      klass = if key_or_klass.respond_to?(:new)
+        key_or_klass
+      else
+        get_rule_class_by_name(key_or_klass)
+      end
+
+      args = [params].compact
+      rule = klass.new(*args)
+      rule.obj = @obj if rule.respond_to?(:obj=)
+      rules[field] << rule
+    end
+
+    # Adds a set of parameterized rules to this object
+    def add_parameterized_rules(field, rules)
+      rules.each_pair do |key, params|
+        add_single_rule(field, key, params)
       end
     end
 
-    # Adds this validation object to a rule if it can accept it
-    def add_object_to_rule(rule)
-      if rule.respond_to?(:obj=)
-        rule.obj = @obj
-      end
+    # Resolves the specified rule name to a rule class
+    def get_rule_class_by_name(klass)
+      klass = camelize(klass)
+      Validation::Rule.const_get(klass)
+    rescue NameError => e
+      raise InvalidRule.new(e)
     end
 
     # Converts a symbol to a class name, taken from rails

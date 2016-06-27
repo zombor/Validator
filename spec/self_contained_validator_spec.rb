@@ -20,20 +20,20 @@ describe SelfContainedValidator do
   context 'behaves like a validator' do
     subject { SelfContainedValidator.new(success_data) }
 
-    it { should respond_to('valid?') }
-    it { should respond_to(:errors) }
+    it { is_expected.to respond_to('valid?') }
+    it { is_expected.to respond_to(:errors) }
   end
 
   it 'passes validation for correct data' do
     foo = SelfContainedValidator.new(success_data)
-    foo.should be_valid
-    foo.errors.should be_empty
+    expect(foo).to be_valid
+    expect(foo.errors).to be_empty
   end
 
   it 'fails validation for wrong data' do
     foo = SelfContainedValidator.new(fail_data)
-    foo.should_not be_valid
-    foo.errors.should include(:test_mail, :test_string)
+    expect(foo).not_to be_valid
+    expect(foo.errors).to include(:test_mail, :test_string)
   end
 
   context 'when adding new rules' do
@@ -42,13 +42,13 @@ describe SelfContainedValidator do
     before { subject.rule(:test_mail, :length => { :maximum => 3}) }
 
     it 'keeps the old rules' do
-      subject.should_not be_valid
-      subject.errors.should include(:test_string)
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:test_string)
     end
 
     it 'validates both old and new rules' do
-      subject.should_not be_valid
-      subject.errors.should include(:test_mail)
+      expect(subject).not_to be_valid
+      expect(subject.errors).to include(:test_mail)
     end
   end
 end

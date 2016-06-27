@@ -5,11 +5,11 @@ describe Validation::Rule::Phone do
   subject { Validation::Rule::Phone }
 
   it 'has an error key' do
-    subject.new.error_key.should == :phone
+    expect(subject.new.error_key).to eq(:phone)
   end
 
   it 'defaults to america format' do
-    subject.new.params.should == {:format => :america}
+    expect(subject.new.params).to eq(:format => :america)
   end
 
   context :america do
@@ -19,7 +19,7 @@ describe Validation::Rule::Phone do
         '1234567890',
         '11234567890'
       ].each do |phone|
-        rule.valid_value?(phone).should be_true
+        expect(rule.valid_value?(phone)).to eq(true)
       end
     end
 
@@ -29,7 +29,7 @@ describe Validation::Rule::Phone do
         '123456789',
         '123456789012'
       ].each do |phone|
-        rule.valid_value?(phone).should be_false
+        expect(rule.valid_value?(phone)).to eq(false)
       end
     end
   end

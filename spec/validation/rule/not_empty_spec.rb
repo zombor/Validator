@@ -2,20 +2,20 @@ require 'validation/rule/not_empty'
 
 describe Validation::Rule::NotEmpty do
   it 'passes when a value exists' do
-    subject.valid_value?('foo').should be_true
+    expect(subject.valid_value?('foo')).to eq(true)
   end
 
   it 'fails when a value does not exist' do
     ['', nil].each do |value|
-      subject.valid_value?(value).should be_false
+      expect(subject.valid_value?(value)).to eq(false)
     end
   end
 
   it 'has an error key' do
-    subject.error_key.should == :not_empty
+    expect(subject.error_key).to eq(:not_empty)
   end
 
-  it 'returns it\'s parameters' do
-    subject.params.should == {}
+  it 'returns its parameters' do
+    expect(subject.params).to eq({})
   end
 end

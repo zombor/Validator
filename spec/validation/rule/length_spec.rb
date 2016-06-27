@@ -5,27 +5,27 @@ describe Validation::Rule::Length do
   subject { Validation::Rule::Length }
 
   it 'has an error key' do
-    subject.new('foo').error_key.should == :length
+    expect(subject.new('foo').error_key).to eq(:length)
   end
 
-  it 'returns it\'s parameters' do
+  it 'returns its parameters' do
     rule = subject.new(:minimum => 5)
-    rule.params.should == {:minimum => 5}
+    expect(rule.params).to eq(:minimum => 5)
   end
 
   context :minimum do
     let(:rule) { subject.new(:minimum => 5) }
 
     it 'does not allow nil' do
-      rule.valid_value?(nil).should be_false
+      expect(rule.valid_value?(nil)).to eq(false)
     end
 
     it 'is valid' do
-      rule.valid_value?('foobarbar').should be_true
+      expect(rule.valid_value?('foobarbar')).to eq(true)
     end
 
     it 'is invalid' do
-      rule.valid_value?('foo').should be_false
+      expect(rule.valid_value?('foo')).to eq(false)
     end
   end
 
@@ -33,15 +33,15 @@ describe Validation::Rule::Length do
     let(:rule) { subject.new(:maximum => 5) }
 
     it 'allows nil' do
-      rule.valid_value?(nil).should be_true
+      expect(rule.valid_value?(nil)).to eq(true)
     end
 
     it 'is valid' do
-      rule.valid_value?('foo').should be_true
+      expect(rule.valid_value?('foo')).to eq(true)
     end
 
     it 'is invalid' do
-      rule.valid_value?('foobarbar').should be_false
+      expect(rule.valid_value?('foobarbar')).to eq(false)
     end
   end
 
@@ -49,15 +49,15 @@ describe Validation::Rule::Length do
     let(:rule) { subject.new(:exact => 5) }
 
     it 'does not allow nil' do
-      rule.valid_value?(nil).should be_false
+      expect(rule.valid_value?(nil)).to eq(false)
     end
 
     it 'is valid' do
-      rule.valid_value?('fooba').should be_true
+      expect(rule.valid_value?('fooba')).to eq(true)
     end
 
     it 'is valid' do
-      rule.valid_value?('foobar').should be_false
+      expect(rule.valid_value?('foobar')).to eq(false)
     end
   end
 end
