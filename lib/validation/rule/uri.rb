@@ -1,30 +1,21 @@
 module Validation
   module Rule
     class URI
-      def initialize(parts=[:host])
-        @required_parts = parts
-      end
+      include Rule
 
-      def error_key
-        :uri
-      end
+      rule_id :uri
+      default_options required_parts: [:host]
 
-      def params
-        {:required_elements => @required_parts}
-      end
+      def validate(value, context)
+        return if blank?(value)
 
-      def valid_value?(uri_string)
-        return true if uri_string.nil?
+        uri = ::URI.parse(value)
 
-        uri = URI(uri_string)
-        @required_parts.each do |part|
-          if uri.send(part).nil? || uri.send(part).empty?
-            return false
-          end
+        if options[:required_parts].any? { |part| blank?(uri.send(part)) }
+          context.errors << :invalid
         end
-        true
       rescue ::URI::InvalidURIError
-        return false
+        context.errors << :invalid
       end
     end
   end

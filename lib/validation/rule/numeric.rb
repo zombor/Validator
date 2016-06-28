@@ -1,20 +1,27 @@
 module Validation
   module Rule
-    # rule for numeric values
     class Numeric
-      # Determines if value is numeric. It can only contain whole numbers
-      def valid_value?(value)
-       !!/^[0-9]+$/.match(value.to_s)
-      end
+      include Rule
 
-      # The error key for this rule
-      def error_key
-        :numeric
-      end
+      rule_id :numeric
 
-      # this rule has no params
-      def params
-        {}
+      def validate(value, context)
+        return if blank?(value)
+
+        minimum = options[:minimum] || (options[:range] && options[:range].min)
+        maximum = options[:maximum] || (options[:range] && options[:range].max)
+        decimals = options[:decimals].to_i || 0
+
+        if !value.respond_to?(:to_f)
+          context.errors << :invalid
+        if value.is_a?(String) && !/^[+-]?[0-9]+(\.[0-9]+)?$/.match(value)
+          context.errors << :invalid
+        else
+          value = value.to_f
+          context.errors << :invalid if value != value.round(decimals)
+          context.errors << :too_small if minimum && value < minimum
+          context.errors << :too_large if maximum && value > maximum
+        end
       end
     end
   end

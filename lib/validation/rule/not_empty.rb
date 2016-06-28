@@ -1,20 +1,12 @@
 module Validation
   module Rule
-    # Rule for not empty
     class NotEmpty
-      # This rule has no params
-      def params
-        {}
-      end
+      include Rule
 
-      # Determines if value is empty or not. In this rule, nil is empty
-      def valid_value?(value)
-        ! (value.nil? || value.empty?)
-      end
+      rule_id :not_empty
 
-      # The error key for this field
-      def error_key
-        :not_empty
+      def validate(value, context)
+        context.errors << :required if blank?(value)
       end
     end
   end

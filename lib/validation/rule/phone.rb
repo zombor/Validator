@@ -1,37 +1,21 @@
 module Validation
   module Rule
-    # Phone rule
     class Phone
-      # params can be any of the following:
-      #
-      #  - :format - the phone number format
-      #
-      #  Example:
-      #
-      #  {:format => :america}
-      def initialize(params = {:format => :america})
-        @params = params
-      end
+      include Rule
 
-      # returns the params given in the constructor
-      def params
-        @params
-      end
+      rule_id :phone
+      default_options format: :usa
 
-      # determines if value is valid according to the constructor params
-      def valid_value?(value)
-        send(@params[:format], value)
-      end
+      def validate(value, context)
+        return if blank?(value)
 
-      def error_key
-        :phone
+        context.errors << :invalid unless send(options[:format], value)
       end
 
       protected
 
-      def america(value)
+      def usa(value)
         digits = value.gsub(/\D/, '').split(//)
-
         digits.length == 10 || digits.length == 11
       end
     end

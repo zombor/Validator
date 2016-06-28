@@ -1,47 +1,33 @@
 module Validation
-  # UUID rule
   module Rule
     class Uuid
-      class UnknownVersion < StandardError; end
-      # params can be any of the folowing:
-      #
-      # - :version - v4
-      #              v5
-      #              uuid (Any valid uuid)
-      #
-      # Example:
-      #
-      # {:version => v4}
-      def initialize(params)
-        @params = params
+      include Rule
+
+      rule_id :uuid
+      default_options version: :any
+
+      def initialize(field, options = {})
+        version = options[:version]
+        raise UnknownVersion, "version '#{version}' not supported" unless VERSION_REGEX[version.to_sym]
+        super
       end
 
-      def params
-        @params
-      end
+      def validate(value, context)
+        return if blank?(value)
 
-      def valid_value?(value)
-        value.nil? || !!uuid_regex.match(value.to_s)
-      rescue UnknownVersion
-        false
-      end
-
-      def error_key
-        :uuid
+        regex = VERSION_REGEX.fetch(options[:version].to_sym)
+        context.errors << :invalid unless regex.match(value.to_s)
       end
 
       private
 
       VERSION_REGEX = {
-        'uuid' => /^[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-        'v4'   => /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-        'v5'   => /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-      }
+        any: /^[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        v4:  /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        v5:  /^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+      }.freeze
 
-      def uuid_regex
-        VERSION_REGEX.fetch(params[:version]) { raise UnknownVersion }
-      end
-
+      class UnknownVersion < ArgumentError; end
     end
   end
 end

@@ -1,8 +1,10 @@
 module Validation
   module Rule
-    # Email rule class. This rule was adapted from https://github.com/emmanuel/aequitas/blob/master/lib/aequitas/rule/format/email_address.rb
-
     class Email
+      include Rule
+
+      rule_id :email
+
       EMAIL_ADDRESS = begin
         letter         = 'a-zA-Z'
         digit          = '0-9'
@@ -28,19 +30,10 @@ module Validation
         pattern        = /\A#{addr_spec}\z/u
       end
 
-      # Determines if value is a valid email
-      def valid_value?(value)
-        !!EMAIL_ADDRESS.match(value)
-      end
+      def validate(value, context)
+        return if blank?(value)
 
-      # The error key for this rule
-      def error_key
-        :email
-      end
-
-      # This rule has no params
-      def params
-        {}
+        context.errors << :invalid unless EMAIL_ADDRESS.match(value)
       end
     end
   end
