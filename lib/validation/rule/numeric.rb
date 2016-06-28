@@ -14,7 +14,7 @@ module Validation
 
         if !value.respond_to?(:to_f)
           context.errors << :invalid
-        if value.is_a?(String) && !/^[+-]?[0-9]+(\.[0-9]+)?$/.match(value)
+        elsif value.is_a?(String) && !/^[+-]?[0-9]+(\.[0-9]+)?$/.match(value)
           context.errors << :invalid
         else
           value = value.to_f
