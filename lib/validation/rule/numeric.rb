@@ -18,7 +18,7 @@ module Validation
           context.errors << :invalid
         else
           value = value.to_f
-          context.errors << :invalid if value != value.round(decimals)
+          context.errors << :not_round if value != value.round(decimals)
           context.errors << :too_small if minimum && value < minimum
           context.errors << :too_large if maximum && value > maximum
         end
