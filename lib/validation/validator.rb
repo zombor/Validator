@@ -1,132 +1,142 @@
 module Validation
-  module Rules
-    # A hash of rules for this object
-    def rules
-      @rules ||= {}
+  module Validator
+    attr_reader :object, :results
+
+    def initialize(object)
+      raise ArgumentError, "cannot validate nil" if object.nil?
+      @object = object
+      @results = []
     end
 
-    # A hash of errors for this object
-    def errors
-      @errors ||= {}
-    end
+    def valid?
+      reset
 
-    # Define a rule for this object
-    #
-    # The rule parameter can be one of the following:
-    #
-    # * a symbol that matches to a class in the Validation::Rule namespace
-    #  * e.g. rule(:field, :not_empty)
-    # * a hash containing the rule as the key and it's parameters as the values
-    #  * e.g. rule(:field, :length => { :minimum => 3, :maximum => 5 })
-    # * an array combining the two previous types
-    def rule(field, definition)
-      field = field.to_sym
-      rules[field] = [] if rules[field].nil?
-
-      begin
-        if definition.respond_to?(:each_pair)
-          add_parameterized_rules(field, definition)
-        elsif definition.respond_to?(:each)
-          definition.each do |item|
-            if item.respond_to?(:each_pair)
-              add_parameterized_rules(field, item)
-            else
-              add_single_rule(field, item)
-            end
-          end
-        else
-          add_single_rule(field, definition)
+      self.class.rules.each do |rule|
+        if !object.respond_to?(rule.field)
+          raise InvalidKey, "cannot validate non-existent field '#{rule.field}'"
         end
+
+        context = Context.new(rule, object)
+        rule.validate(context.value, context)
+
+        results << context
+      end
+
+      !errors.any?
+    end
+
+    def errors
+      list = {}
+      failures.each do |context|
+        list[context.rule.field] ||= {}
+        list[context.rule.field][context.rule.rule_id] ||= []
+        list[context.rule.field][context.rule.rule_id] += context.errors
+      end
+      list
+    end
+
+    def reset
+      @results = []
+    end
+
+    def self.define(&block)
+      raise ArgumentError, "block required" unless block_given?
+      klass = Class.new
+      klass.send(:include, self)
+      klass.instance_eval(&block)
+      klass
+    end
+
+    private
+
+    def failures
+      results.select do |context|
+        context.errors.any?
+      end
+    end
+
+    def self.included(base)
+      base.extend ClassMethods
+    end
+
+    module ClassMethods
+      def rules
+        parent = respond_to?(:superclass) && superclass.respond_to?(:rules) ? superclass.rules : []
+        parent + (@rules || [])
+      end
+
+      def rule(field, *items)
+        items.flatten.each do |item|
+          if item.respond_to?(:each_pair)
+            add_rule_hash(field, item)
+          else
+            add_rule(field, item)
+          end
+        end
+        self
+      end
+
+      private
+
+      def add_rule(field, key_or_klass, options = {})
+        klass = if key_or_klass.respond_to?(:new)
+          key_or_klass
+        else
+          get_rule_class_by_name(key_or_klass)
+        end
+
+        valid = klass.ancestors.include?(Rule)
+        raise InvalidRule, "rule class #{klass.name} does not include Validation::Rule" unless valid
+        raise InvalidRule, "rule class #{klass.name} has no rule ID defined" unless klass.rule_id
+        rule = klass.new(field, options)
+
+        @rules ||= []
+        @rules << rule
+      end
+
+      def add_rule_hash(field, hash)
+        hash.each_pair do |key, options|
+          options = options === true ? {} : options
+          add_rule(field, key, options)
+        end
+      end
+
+      def get_rule_class_by_name(klass)
+        klass = camelize(klass)
+        Validation::Rule.const_get(klass)
       rescue NameError => e
         raise InvalidRule.new(e)
       end
-      self
-    end
 
-    # Determines if this object is valid. When a rule fails for a field,
-    # this will stop processing further rules. In this way, you'll only get
-    # one error per field
-    def valid?
-      valid = true
-
-      rules.each_pair do |field, rules|
-        if ! @obj.respond_to?(field)
-          raise InvalidKey, "cannot validate non-existent field '#{field}'"
-        end
-
-        rules.each do |r|
-          if ! r.valid_value?(@obj.send(field))
-            valid = false
-            errors[field] = {:rule => r.error_key, :params => r.params}
-            break
-          end
-        end
-      end
-
-      @valid = valid
-    end
-
-    protected
-
-    # Adds a single rule to this object
-    def add_single_rule(field, key_or_klass, params = nil)
-      klass = if key_or_klass.respond_to?(:new)
-        key_or_klass
-      else
-        get_rule_class_by_name(key_or_klass)
-      end
-
-      args = [params].compact
-      rule = klass.new(*args)
-      rule.obj = @obj if rule.respond_to?(:obj=)
-      rules[field] << rule
-    end
-
-    # Adds a set of parameterized rules to this object
-    def add_parameterized_rules(field, rules)
-      rules.each_pair do |key, params|
-        add_single_rule(field, key, params)
+      def camelize(term)
+        string = term.to_s
+        string = string.sub(/^[a-z\d]*/) { $&.capitalize }
+        string.gsub(/(?:_|(\/))([a-z\d]*)/i) { $2.capitalize }.gsub('/', '::')
       end
     end
 
-    # Resolves the specified rule name to a rule class
-    def get_rule_class_by_name(klass)
-      klass = camelize(klass)
-      Validation::Rule.const_get(klass)
-    rescue NameError => e
-      raise InvalidRule.new(e)
-    end
+    class Context
+      attr_reader :rule, :object, :errors
 
-    # Converts a symbol to a class name, taken from rails
-    def camelize(term)
-      string = term.to_s
-      string = string.sub(/^[a-z\d]*/) { $&.capitalize }
-      string.gsub(/(?:_|(\/))([a-z\d]*)/i) { $2.capitalize }.gsub('/', '::')
+      def initialize(rule, object)
+        @rule = rule
+        @object = object
+        @errors = []
+      end
+
+      def field
+        rule.field
+      end
+
+      def value
+        object.send(field)
+      end
     end
   end
 
-  # Validator is a simple ruby validation class. You don't use it directly
-  # inside your classes like just about every other ruby validation class out
-  # there. I chose to implement it in this way so I didn't automatically
-  # pollute the namespace of the objects I wanted to validate.
-  #
-  # This also solves the problem of validating forms very nicely. Frequently
-  # you will have a form that represents many different data objects in your
-  # system, and you can pre-validate everything before doing any saving.
-  class Validator
-    include Validation::Rules
-
-    def initialize(obj)
-      @rules = self.class.rules if self.class.is_a?(Validation::Rules)
-      @obj = obj
-    end
-  end
-
-  # InvalidKey is raised if a rule is added to a field that doesn't exist
   class InvalidKey < RuntimeError
   end
 
-  # InvalidRule is raised if a rule is added that doesn't exist
   class InvalidRule < RuntimeError
   end
 end
