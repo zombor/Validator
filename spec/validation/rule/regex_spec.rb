@@ -1,11 +1,11 @@
 require 'spec_helper'
-require 'validation/rule/regular_expression'
+require 'validation/rule/regex'
 
-describe Validation::Rule::RegularExpression do
-  subject { Validation::Rule::RegularExpression }
+describe Validation::Rule::Regex do
+  subject { Validation::Rule::Regex }
 
   it 'has an error key' do
-    expect(subject.new('foo').error_key).to eq(:regular_expression)
+    expect(subject.new('foo').error_key).to eq(:regex)
   end
 
   it 'returns its parameters' do

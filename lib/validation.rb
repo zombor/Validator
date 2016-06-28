@@ -1,14 +1,6 @@
-require 'validation/validator'
+require_relative 'validation/version'
+require_relative 'validation/rule'
+require_relative 'validation/validator'
 
 module Validation
-
-  class << self
-    private
-
-    def included(mod)
-      mod.module_eval do
-        extend Validation::Rules
-      end
-    end
-  end
 end

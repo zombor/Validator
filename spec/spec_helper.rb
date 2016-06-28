@@ -1,4 +1,4 @@
 require 'rubygems'
 require 'bundler/setup'
 
-$LOAD_PATH << '../lib'
+$LOAD_PATH.unshift '../lib'
