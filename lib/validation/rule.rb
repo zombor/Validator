@@ -13,12 +13,11 @@ module Validation
       self.class.rule_id
     end
 
+    private
+
     def blank?(value)
-      return value.empty? || /\A[[:space:]]*\z/.match(value) if value.is_a?(String)
       value.respond_to?(:empty?) ? !!value.empty? : !value
     end
-
-    private
 
     def self.included(base)
       base.extend ClassMethods
@@ -30,9 +29,9 @@ module Validation
         @rule_id = value.to_sym
       end
 
-      def default_options(value = nil)
-        return @default_options unless value
-        @default_options = value
+      def default_options(value = nil, &block)
+        return (@default_options || {}) unless value
+        @default_options = block_given? ? block : value
       end
     end
   end

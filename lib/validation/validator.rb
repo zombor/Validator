@@ -8,7 +8,7 @@ module Validation
       @results = []
     end
 
-    def valid?
+    def validate!
       reset
 
       self.class.rules.each do |rule|
@@ -22,15 +22,23 @@ module Validation
         results << context
       end
 
+      self
+    end
+
+    def valid?
+      validate! unless results.any?
       !errors.any?
     end
+
+    Error = Struct.new(:rule, :error)
 
     def errors
       list = {}
       failures.each do |context|
-        list[context.rule.field] ||= {}
-        list[context.rule.field][context.rule.rule_id] ||= []
-        list[context.rule.field][context.rule.rule_id] += context.errors
+        list[context.rule.field] ||= []
+        context.errors.each do |error|
+          list[context.rule.field] << Error.new(context.rule.rule_id, error)
+        end
       end
       list
     end
@@ -60,6 +68,11 @@ module Validation
     end
 
     module ClassMethods
+      def validate(object)
+        instance = self.new(object)
+        instance.validate!
+      end
+
       def rules
         parent = respond_to?(:superclass) && superclass.respond_to?(:rules) ? superclass.rules : []
         parent + (@rules || [])
