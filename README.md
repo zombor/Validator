@@ -83,6 +83,8 @@ rule :field, :not_empty
 **Errors**
 * `required` &ndash; if the value is `nil` or responds true to `empty?`
 
+---
+
 #### Length
 
 Validates the length of a string or any other object that responds to `length`.
@@ -105,6 +107,8 @@ rule :field, :length => { :exact => 5 }
 **Errors**
 * `too_short` &ndash; if the length is smaller than the minimum (or exact) length
 * `too_long` &ndash; if the length exceeds the maximum (or exact) length
+
+---
 
 #### Numeric
 
@@ -130,6 +134,8 @@ rule :field, :numeric => { :decimals => 2 }
 * `too_long` &ndash; if the value is larger than the specified maximum
 * `not_round` &ndash; if the value has more significant decimals than allowed
 
+---
+
 #### Regex
 
 Checks if a string matches a regular expression.
@@ -146,6 +152,8 @@ rule :field, :regex => { :regex => /\A[0-9][a-f]\z/ }
 **Errors**
 * `invalid` &ndash; if the string does not match the regular expression
 
+---
+
 #### Matches
 
 Checks if the value of a field matches that of another field.
@@ -160,6 +168,8 @@ rule :field, :matches => { :field => :other_field }
 **Errors**
 * `mismatch` &ndash; if the values of the two fields do not match
 
+---
+
 #### Email
 
 Checks whether the value is a syntactically valid email address.
@@ -172,6 +182,8 @@ rule :field, :email
 
 **Errors**
 * `invalid` &ndash; if the value is not a valid email address
+
+---
 
 #### Phone
 
@@ -190,6 +202,8 @@ rule :field, :phone => { :format => :usa }
 **Errors**
 * `invalid` &ndash; if the value does not adhere to the specified format
 
+---
+
 #### URI
 
 Checks whether the value is a valid URI.
@@ -206,6 +220,8 @@ rule :field, :uri => { :required_parts => [:host, :path, :query] }
 
 **Errors**
 * `invalid` &ndash; if the value is not a syntactically valid URI, or at least one of its required parts is missing
+
+---
 
 #### Uuid
 
