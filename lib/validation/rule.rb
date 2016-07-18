@@ -37,6 +37,7 @@ module Validation
   end
 end
 
+require_relative 'rule/custom'
 require_relative 'rule/email'
 require_relative 'rule/length'
 require_relative 'rule/matches'

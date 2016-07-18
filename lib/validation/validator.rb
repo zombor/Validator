@@ -30,6 +30,18 @@ module Validation
       !errors.any?
     end
 
+    def failures
+      results.select do |context|
+        context.errors.any?
+      end
+    end
+
+    def results_for(field)
+      results.select do |result|
+        result.field == field
+      end
+    end
+
     Error = Struct.new(:rule, :error)
 
     def errors
@@ -57,12 +69,6 @@ module Validation
 
     private
 
-    def failures
-      results.select do |context|
-        context.errors.any?
-      end
-    end
-
     def self.included(base)
       base.extend ClassMethods
     end
@@ -78,12 +84,23 @@ module Validation
         parent + (@rules || [])
       end
 
-      def rule(field, *items)
-        items.flatten.each do |item|
-          if item.respond_to?(:each_pair)
-            add_rule_hash(field, item)
-          else
-            add_rule(field, item)
+      def rules_for(field)
+        rules.select do |rule|
+          rule.field == field
+        end
+      end
+
+      def rule(field, *items, &block)
+        if block_given?
+          raise "cannot set regular rules and a custom rule on the same line" if items.any?
+          add_rule(field, :custom, block: block)
+        else
+          items.flatten.each do |item|
+            if item.respond_to?(:each_pair)
+              add_rule_hash(field, item)
+            else
+              add_rule(field, item)
+            end
           end
         end
         self
