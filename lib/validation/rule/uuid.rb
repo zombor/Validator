@@ -7,9 +7,9 @@ module Validation
       default_options version: :any
 
       def initialize(field, options = {})
-        version = options[:version]
-        raise UnknownVersion, "version '#{version}' not supported" unless VERSION_REGEX[version.to_sym]
         super
+        version = self.options[:version]
+        raise UnknownVersion, "version '#{version}' not supported" unless VERSION_REGEX[version.to_sym]
       end
 
       def validate(value, context)
