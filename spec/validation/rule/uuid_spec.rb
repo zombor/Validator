@@ -1,51 +1,76 @@
-require 'ostruct'
-require 'validation/rule/uuid'
+require 'spec_helper'
 
 describe Validation::Rule::Uuid do
-  params = { :version => 'uuid' }
-  subject { described_class.new(params) }
-
-  it 'has params' do
-    expect(subject.params).to eq(params)
+  subject do
+    described_class.new(:field, params)
   end
 
-  it 'has an error key' do
-    expect(subject.error_key).to eq(:uuid)
+  let(:params) { Hash.new }
+
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:uuid)
   end
 
-  it 'passes when given a valid uuid' do
-    expect(subject.valid_value?("05369729-3e2d-4cc1-88ea-c7ad8665a5da")).to eq(true)
+  it 'does not validate a blank value' do
+    expect(subject).to be_valid_for(nil)
+    expect(subject).to be_valid_for('')
   end
 
-  it 'passes when given a valid v4 uuid' do
-    params = { :version => 'v4' }
-    expect(subject.valid_value?("05369729-3e2d-4cc1-88ea-c7ad8665a5da")).to eq(true)
+  it 'defaults to any valid uuid' do
+    expect(subject.options[:version]).to eq(:any)
   end
 
-  it 'passes when given a valid v5 uuid' do
-    params = { :version => 'v5' }
-    expect(subject.valid_value?("05369729-3e2d-5cc1-88ea-c7ad8665a5da")).to eq(true)
+  context 'any valid uuid' do
+    let(:params) do
+      { format: :any }
+    end
+
+    it 'passes if the value is a valid uuid' do
+      expect(subject).to be_valid_for("05369729-3e2d-1cc1-88ea-c7ad8665a5da")
+    end
+
+    it 'fails if the value is not a valid uuid' do
+      expect(subject).to have_error_for("not-a-uuid", :invalid)
+      expect(subject).to have_error_for(1337, :invalid)
+      expect(subject).to have_error_for(['arr', 'ay'], :invalid)
+    end
   end
 
-  it 'fails when version does not match' do
-    params = { :version => 'v4' }
-    expect(subject.valid_value?("05369729-3e2d-5cc1-88ea-c7ad8665a5da")).to eq(false)
+  context 'version 4' do
+    let(:params) do
+      { version: :v4 }
+    end
+
+    it 'passes when given a valid v4 uuid' do
+      expect(subject).to be_valid_for("05369729-3e2d-4cc1-88ea-c7ad8665a5da")
+    end
+
+    it 'fails when version does not match' do
+      expect(subject).to have_error_for("05369729-3e2d-5cc1-88ea-c7ad8665a5da", :invalid)
+    end
   end
 
-  it 'fails when given an invalid uuid' do
-    expect(subject.valid_value?('not-a-uuid')).to eq(false)
+  context 'version 5' do
+    let(:params) do
+      { version: :v5 }
+    end
+
+    it 'passes when given a valid v4 uuid' do
+      expect(subject).to be_valid_for("05369729-3e2d-5cc1-88ea-c7ad8665a5da")
+    end
+
+    it 'fails when version does not match' do
+      expect(subject).to have_error_for("05369729-3e2d-4cc1-88ea-c7ad8665a5da", :invalid)
+    end
   end
 
-  it 'fails when given a blank string' do
-    expect(subject.valid_value?('')).to eq(false)
-  end
+  context 'unsupported version' do
+    let(:params) do
+      { version: :invalid }
+    end
 
-  it 'fails when given a non-string' do
-    expect(subject.valid_value?(5)).to eq(false)
-  end
-
-  it 'fails when given an unknown uuid version' do
-    params = { :version => 'v6' }
-    expect(subject.valid_value?("05369729-3e2d-4cc1-88ea-c7ad8665a5da")).to eq(false)
+    it 'raises exception' do
+      expect { subject }.to raise_error(ArgumentError)
+    end
   end
 end

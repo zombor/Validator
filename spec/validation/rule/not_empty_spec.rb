@@ -1,21 +1,20 @@
-require 'validation/rule/not_empty'
+require 'spec_helper'
 
 describe Validation::Rule::NotEmpty do
-  it 'passes when a value exists' do
-    expect(subject.valid_value?('foo')).to eq(true)
+  subject do
+    described_class.new(:field)
   end
 
-  it 'fails when a value does not exist' do
-    ['', nil].each do |value|
-      expect(subject.valid_value?(value)).to eq(false)
-    end
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:not_empty)
   end
 
-  it 'has an error key' do
-    expect(subject.error_key).to eq(:not_empty)
+  it 'passes if value is not nil or empty' do
+    expect(subject).to be_valid_for('some value')
   end
 
-  it 'returns its parameters' do
-    expect(subject.params).to eq({})
+  it 'fails if value is nil or empty' do
+    expect(subject).to have_error_for(nil, :required)
+    expect(subject).to have_error_for('', :required)
   end
 end

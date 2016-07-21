@@ -1,35 +1,49 @@
 require 'spec_helper'
-require 'validation/rule/phone'
 
 describe Validation::Rule::Phone do
-  subject { Validation::Rule::Phone }
-
-  it 'has an error key' do
-    expect(subject.new.error_key).to eq(:phone)
+  subject do
+    described_class.new(:field, params)
   end
 
-  it 'defaults to america format' do
-    expect(subject.new.params).to eq(:format => :america)
+  let(:params) { Hash.new }
+
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:phone)
   end
 
-  context :america do
-    let(:rule) { subject.new }
-    it 'is valid' do
+  it 'does not validate a blank value' do
+    expect(subject).to be_valid_for(nil)
+    expect(subject).to be_valid_for('')
+  end
+
+  it 'defaults to USA format' do
+    expect(subject.options[:format]).to eq(:usa)
+  end
+
+  context 'USA' do
+    let(:params) do
+      { format: :usa }
+    end
+
+    it 'passes for valid values' do
       [
-        '1234567890',
-        '11234567890'
-      ].each do |phone|
-        expect(rule.valid_value?(phone)).to eq(true)
+        '2025550100',
+        '202-555-0100',
+        '12025550100',
+        '+1-202-555-0100'
+      ].each do |value|
+        expect(subject).to be_valid_for(value)
       end
     end
 
-    it 'is invalid' do
+    it 'fails for invalid values' do
       [
-        'asdfghjklp',
+        'whatever',
+        '123456',
         '123456789',
         '123456789012'
-      ].each do |phone|
-        expect(rule.valid_value?(phone)).to eq(false)
+      ].each do |value|
+        expect(subject).to have_error_for(value, :invalid)
       end
     end
   end

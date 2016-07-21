@@ -1,22 +1,26 @@
 require 'spec_helper'
-require 'validation/rule/email'
 
 describe Validation::Rule::Email do
+  subject do
+    described_class.new(:field)
+  end
+
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:email)
+  end
+
+  it 'does not validate a blank value' do
+    expect(subject).to be_valid_for(nil)
+    expect(subject).to be_valid_for('')
+  end
+
   it 'passes with a valid email' do
-    expect(subject.valid_value?('foo@bar.com')).to eq(true)
+    expect(subject).to be_valid_for('user@domain.com')
   end
 
   it 'fails with an invalid email' do
-    ['bad-email', '', nil].each do |value|
-      expect(subject.valid_value?(value)).to eq(false)
+    ['bad-email', 'bad@email', 'b\4d@email.com'].each do |value|
+      expect(subject).to have_error_for(value, :invalid)
     end
-  end
-
-  it 'has an error key' do
-    expect(subject.error_key).to eq(:email)
-  end
-
-  it 'returns its parameters' do
-    expect(subject.params).to eq({})
   end
 end

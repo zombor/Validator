@@ -1,32 +1,25 @@
 require 'spec_helper'
 require 'ostruct'
-require 'validation/rule/matches'
 
 describe Validation::Rule::Matches do
-  let(:field) { :password_repeat }
-  let(:obj) { OpenStruct.new(:password => 'foo', :password_repeat => 'bar') }
-  subject { Validation::Rule::Matches.new(field) }
-
-  it 'has an error key' do
-    expect(subject.error_key).to eq(:matches)
+  subject do
+    described_class.new(:field, field: :other)
   end
 
-  it 'returns its parameters' do
-    expect(subject.params).to eq(field)
+  let(:object) do
+    OpenStruct.new(other: 'correct value')
   end
 
-  it 'accepts a data object' do
-    expect { subject.obj = obj }.not_to raise_error
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:matches)
   end
 
-  it 'passes on valid data' do
-    subject.obj = obj
-    expect(subject.valid_value?('bar')).to eq(true)
+  it 'passes if values match' do
+    expect(subject).to be_valid_for('correct value', object)
   end
 
-  it 'fails on invalid data' do
-    subject.obj = obj
-    expect(subject.valid_value?('foo')).to eq(false)
+  it 'fails if values do not match' do
+    expect(subject).to have_error_for('incorrect value', :mismatch, object)
+    expect(subject).to have_error_for(nil, :mismatch, object)
   end
-
 end

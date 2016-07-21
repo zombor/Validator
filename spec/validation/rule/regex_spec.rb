@@ -1,29 +1,28 @@
 require 'spec_helper'
-require 'validation/rule/regex'
 
 describe Validation::Rule::Regex do
-  subject { Validation::Rule::Regex }
-
-  it 'has an error key' do
-    expect(subject.new('foo').error_key).to eq(:regex)
+  subject do
+    described_class.new(:field, regex: /\Aval(id|ue)-\d{2}\z/)
   end
 
-  it 'returns its parameters' do
-    rule = subject.new(:regex => /\A.+\Z/)
-    expect(rule.params).to eq(:regex => /\A.+\Z/)
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:regex)
   end
 
-  context :regex do
-    let(:rule) { subject.new(:regex => /\A[0-9]+\Z/) }
+  it 'does not validate a blank value' do
+    expect(subject).to be_valid_for(nil)
+    expect(subject).to be_valid_for('')
+  end
 
-    it 'is valid' do
-      expect(rule.valid_value?('0123456789')).to eq(true)
+  it 'passes if value matches regex' do
+    ['valid-12', 'value-34'].each do |value|
+      expect(subject).to be_valid_for(value)
     end
+  end
 
-    it 'is invalid' do
-      expect(rule.valid_value?('a')).to eq(false)
-      expect(rule.valid_value?('2b')).to eq(false)
-      expect(rule.valid_value?('c3')).to eq(false)
+  it 'passes if value does not match regex' do
+    ['invalid', 'value-1', 'valid-not'].each do |value|
+      expect(subject).to have_error_for(value, :invalid)
     end
   end
 end

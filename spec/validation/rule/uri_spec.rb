@@ -1,37 +1,68 @@
-require 'ostruct'
-require 'validation/rule/uri'
+require 'spec_helper'
 
 describe Validation::Rule::URI do
-  subject { described_class.new }
-
-  it 'has an error key' do
-    expect(subject.error_key).to eq(:uri)
+  subject do
+    described_class.new(:field, params)
   end
 
-  it 'passes when given a valid uri' do
-    expect(subject.valid_value?('http://uri.com')).to eq(true)
+  let(:params) { Hash.new }
+
+  it 'sets rule ID' do
+    expect(described_class.rule_id).to eq(:uri)
   end
 
-  it 'has params' do
-    expect(subject.params).to eq(:required_elements => [:host])
+  it 'does not validate a blank value' do
+    expect(subject).to be_valid_for(nil)
+    expect(subject).to be_valid_for('')
   end
 
-  it 'passes with nil' do
-    expect(subject.valid_value?(nil)).to eq(true)
+  it 'defaults to require the host part' do
+    expect(subject.options[:required_parts]).to eq([:host])
   end
 
-  it 'fails when given an invalid uri' do
-    expect(subject.valid_value?('foo:/%urim')).to eq(false)
+  it 'passes when given a valid url' do
+    [
+      'http://valid.url',
+      'https://also.valid',
+      '//and.this/as/well',
+      'ftp://this.is/?valid=too'
+    ].each do |value|
+      expect(subject).to be_valid_for(value)
+    end
   end
 
-  context "part validation" do
-    it 'fails to validate when given a uri without a host' do
-      expect(subject.valid_value?('http:foo@')).to eq(false)
+  it 'fails when given an invalid url' do
+    [
+      'not-an-url',
+      'whats//going\\on//here?',
+      'http:://invalid.url',
+    ].each do |value|
+      expect(subject).to have_error_for(value, :invalid)
+    end
+  end
+
+  context 'part validation' do
+    let(:params) do
+      { required_parts: [:host, :query] }
     end
 
-    it 'fails to validate when given a uri without a scheme' do
-      described_class.new([:host, :scheme])
-      expect(subject.valid_value?('foo.com')).to eq(false)
+    it 'passes if required parts are present' do
+      [
+        'http://domain.tld?query=params',
+        'http://domain.tld/the/path?query=params',
+        'http://domain.tld:1234/?query=params'
+      ].each do |value|
+        expect(subject).to be_valid_for(value)
+      end
+    end
+
+    it 'fails if a required part is not present' do
+      [
+        '/missing.host?query=params',
+        'http://missing.query/params'
+      ].each do |value|
+        expect(subject).to have_error_for(value, :invalid)
+      end
     end
   end
 end
