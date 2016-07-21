@@ -13,6 +13,10 @@ module Validation
       self.class.rule_id
     end
 
+    def validate
+      raise RuntimeError, "rule #{self.class.name} does not contain validation logic"
+    end
+
     private
 
     def blank?(value)
