@@ -3,7 +3,6 @@ module Validation
     attr_reader :object, :results
 
     def initialize(object)
-      raise ArgumentError, "cannot validate nil" if object.nil?
       @object = object
       @results = []
     end
