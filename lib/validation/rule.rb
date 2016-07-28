@@ -5,7 +5,7 @@ module Validation
     def initialize(field, options = {})
       @field = field.to_sym
       defaults = self.class.default_options
-      defaults = defaults.respond_to?(:call) ? defaults.call : defaults
+      defaults = defaults.call if defaults.respond_to?(:call)
       @options = defaults.merge(options)
     end
 
