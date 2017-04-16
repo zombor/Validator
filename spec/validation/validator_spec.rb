@@ -87,6 +87,14 @@ describe Validation::Validator do
           .rule(:email, :length => {:minimum => 3, :maximum => 5})
       end.not_to raise_error
     end
+
+    it 'returns self so rules can be chained' do
+      expect do
+        subject
+          .rule(:email, :not_empty)
+          .rule(:email, :length => {:minimum => 3, :maximum => 5})
+      end.to_not raise_error
+    end
   end
 
   context :valid? do
