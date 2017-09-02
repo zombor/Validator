@@ -3,7 +3,7 @@ module Validation
   module Rule
     class Uuid
       class UnknownVersion < StandardError; end
-      # params can be any of the folowing:
+      # params can be any of the following:
       #
       # - :version - v4
       #              v5
